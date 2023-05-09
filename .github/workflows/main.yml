@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Docker
+      uses: docker/setup-docker@v1
+
+    - name: Build and run Docker container
+      run: |
+        docker pull logger:latest
+        docker run -d -p 8001:8001 -v $PWD/logs:/home/logs logger:latest
+
+    - name: Test container
+      run: curl http://localhost:8001/hello
+
+    - name: Stop Docker container
+      run: docker stop $(docker ps -q)
